@@ -69,6 +69,7 @@ const Buttons = () => {
         transition-all duration-300 ease-in-out
         ${getResponsiveWidth()}
       `}
+      style={{ pointerEvents: 'auto' }}
     >
       <div className={`${getResponsivePadding()} py-6`}>
         <span className={`
