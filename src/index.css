@@ -9,8 +9,12 @@ html {
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   font-family: "Inter", sans-serif;
   background-color: #f8fafc;
-  color: #1e293b;
+  color: #8996ab;
+}
+
+#root {
+  min-height: 100vh;
 }

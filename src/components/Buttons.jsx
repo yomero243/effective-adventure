@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const Buttons = () => {
   const [activeSection, setActiveSection] = useState("inicio");
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   const handleNavigation = (section) => {
     setActiveSection(section);
@@ -9,55 +11,113 @@ const Buttons = () => {
   };
 
   const getButtonClasses = (section) => {
-    const baseClasses = "w-full text-white font-bold py-2 px-4 rounded-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-2";
-    const activeClasses = "ring-4 ring-opacity-50";
-    const hoverEffect = "hover:shadow-[0_0_15px_rgba(255,255,255,0.5)]";
-    return `${baseClasses} ${hoverEffect} ${activeSection === section ? activeClasses : ""}`;
-  };
-
-  const buttonStyles = {
-    inicio: "bg-indigo-600 hover:bg-indigo-700 ring-indigo-300",
-    "sobre-mi": "bg-purple-600 hover:bg-purple-700 ring-purple-300",
-    proyectos: "bg-blue-600 hover:bg-blue-700 ring-blue-300",
-    habilidades: "bg-green-600 hover:bg-green-700 ring-green-300",
-    contacto: "bg-amber-600 hover:bg-amber-700 ring-amber-300",
-    cv: "bg-red-600 hover:bg-red-700 ring-red-300"
+    return `block rounded-lg ${getResponsivePadding()} py-2 text-sm font-medium ${
+      activeSection === section 
+      ? "bg-gray-100 text-gray-700" 
+      : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+    }`;
   };
 
   const buttons = [
-    { id: "inicio", label: "Inicio" },
-    { id: "sobre-mi", label: "Sobre mí" },
-    { id: "proyectos", label: "Proyectos" },
-    { id: "habilidades", label: "Habilidades" },
-    { id: "contacto", label: "Contacto" },
-    { id: "cv", label: "CV" }
+    { id: "inicio", label: "Inicio", emoji: "🏠" },
+    { id: "sobre-mi", label: "Sobre mí", emoji: "👨‍💻" },
+    { id: "proyectos", label: "Proyectos", emoji: "🚀" },
+    { id: "habilidades", label: "Habilidades", emoji: "💪" },
+    { id: "contacto", label: "Contacto", emoji: "📧" },
+    { id: "cv", label: "CV", emoji: "📄" }
   ];
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const getResponsiveWidth = () => {
+    if (isScrolled) return 'w-16';
+    if (windowWidth < 640) return 'w-16'; // móvil
+    if (windowWidth < 768) return 'w-48'; // tablet
+    return 'w-64'; // desktop
+  };
+
+  const getResponsivePadding = () => {
+    if (isScrolled || windowWidth < 640) return 'px-2';
+    if (windowWidth < 768) return 'px-3';
+    return 'px-4';
+  };
+
+  const showOnlyEmoji = () => {
+    return isScrolled || windowWidth < 640;
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 bg-slate-900/80 backdrop-blur-lg shadow-2xl z-50">
-      <nav className="container mx-auto px-4 py-3">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-          {buttons.map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => handleNavigation(id)}
-              className={`${getButtonClasses(id)} ${buttonStyles[id]}`}
-              aria-label={`Navigate to ${label}`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+    <div 
+      className={`
+        flex h-screen flex-col justify-between border-e bg-white 
+        transition-all duration-300 ease-in-out
+        ${getResponsiveWidth()}
+      `}
+    >
+      <div className={`${getResponsivePadding()} py-6`}>
+        <span className={`
+          grid place-content-center rounded-lg bg-gray-100 text-xs text-gray-600
+          transition-all duration-300
+          ${showOnlyEmoji() ? 'h-8 w-12' : 'h-10 w-32'}
+        `}>
+          {showOnlyEmoji() ? '🎯' : 'Logo'}
+        </span>
+
+        <ul className="mt-6 space-y-1">
+          {buttons.map(({ id, label, emoji }) => (
+            <li key={id}>
+              <button
+                onClick={() => handleNavigation(id)}
+                className={getButtonClasses(id)}
+                aria-label={`Navigate to ${label}`}
               >
-                <path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm1 13h-2v-2h2v2zm0-4h-2V5h2v6z" />
-              </svg>
-              <span className="hidden md:inline">{label}</span>
-            </button>
+                <span className={showOnlyEmoji() ? 'inline' : 'md:hidden'}>{emoji}</span>
+                <span className={`hidden ${showOnlyEmoji() ? 'hidden' : 'md:inline'}`}>
+                  {label}
+                </span>
+              </button>
+            </li>
           ))}
-        </div>
-      </nav>
-    </header>
+        </ul>
+      </div>
+
+      <div className="sticky inset-x-0 bottom-0 border-t border-gray-100">
+        <a href="#" className={`
+          flex items-center gap-2 bg-white hover:bg-gray-50
+          ${showOnlyEmoji() ? 'p-2' : 'p-4'}
+        `}>
+          <img
+            alt="Profile"
+            src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40"
+            className={`rounded-full object-cover transition-all duration-300 ${
+              showOnlyEmoji() ? 'size-8' : 'size-10'
+            }`}
+          />
+          <div className={`hidden ${showOnlyEmoji() ? 'hidden' : 'md:block'}`}>
+            <p className="text-xs">
+              <strong className="block font-medium">Tu Nombre</strong>
+              <span>tu@email.com</span>
+            </p>
+          </div>
+        </a>
+      </div>
+    </div>
   );
 };
 

@@ -6,15 +6,20 @@ const Scene = () => {
 
   useEffect(() => {
     // Configuración básica
+    const currentMount = mountRef.current;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf8fafc);
 
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    // Ajustar el tamaño al contenedor
+    const width = currentMount.clientWidth;
+    const height = currentMount.clientHeight;
+
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     camera.position.z = 5;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    mountRef.current.appendChild(renderer.domElement);
+    renderer.setSize(width, height);
+    currentMount.appendChild(renderer.domElement);
 
     // Crear una geometría básica
     const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
@@ -32,9 +37,12 @@ const Scene = () => {
 
     // Manejar el resize
     const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      const width = currentMount.clientWidth;
+      const height = currentMount.clientHeight;
+      
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(width, height);
     };
 
     window.addEventListener('resize', handleResize);
@@ -43,14 +51,16 @@ const Scene = () => {
     // Limpieza
     return () => {
       window.removeEventListener('resize', handleResize);
-      mountRef.current.removeChild(renderer.domElement);
+      currentMount.removeChild(renderer.domElement);
+      renderer.dispose();
     };
   }, []);
 
   return (
     <div 
       ref={mountRef} 
-      className="fixed top-0 left-0 w-full h-full -z-10"
+      className="fixed inset-0 w-full h-full"
+      style={{ zIndex: -1 }}
     />
   );
 };

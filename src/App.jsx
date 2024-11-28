@@ -4,9 +4,11 @@ import Scene from './components/Escene';
 
 const App = () => {
   return (
-    <div className="min-h-screen bg-transparent pt-20">
+    <div className="min-h-screen">
       <Scene />
-      <Buttons />
+      <div className="absolute top-0 left-0">
+        <Buttons />
+      </div>
     </div>
   );
 };
