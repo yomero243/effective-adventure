@@ -1,13 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Configuración básica de la página -->
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="Vite + React Project" />
+
+    <!-- Icono del sitio -->
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+
+    <!-- Título de la página -->
     <title>Vite + React</title>
+
+    <!-- Estilos iniciales, opcional -->
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+      }
+      #root {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+    </style>
   </head>
   <body>
+    <!-- Contenedor para React -->
     <div id="root"></div>
+
+    <!-- Importar el código de React principal -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
