@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+// Importa la referencia de la cámara o la escena
+import { focusCameraOnPoint } from "../scene/sceneFunctions";
 
 const Buttons = () => {
   const [activeSection, setActiveSection] = useState("inicio");
@@ -8,6 +10,9 @@ const Buttons = () => {
   const handleNavigation = (section) => {
     setActiveSection(section);
     document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
+
+    // Llama a la función para enfocar la cámara
+    focusCameraOnPoint(section);
   };
 
   const getButtonClasses = (section) => {
