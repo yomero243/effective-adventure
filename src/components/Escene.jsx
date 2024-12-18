@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+export let camera; // Exporta la cámara
+
 const Scene = () => {
   const mountRef = useRef(null);
 
@@ -14,7 +16,7 @@ const Scene = () => {
     const width = currentMount.clientWidth;
     const height = currentMount.clientHeight;
 
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     camera.position.set(0, 2, 20);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
