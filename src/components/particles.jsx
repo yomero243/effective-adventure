@@ -1,52 +1,122 @@
-import React, { useRef, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { Canvas } from '@react-three/fiber';
+import Particles from './particles'; // Asegúrate de que la ruta sea correcta
 
-const Particles = ({ count = 1000 }) => {
-  const particlesRef = useRef();
-  const positions = new Float32Array(count * 3);
-  const velocities = new Float32Array(count);
+export let camera; // Exporta la cámara
+
+const Scene = () => {
+  const mountRef = useRef(null);
 
   useEffect(() => {
-    for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 10; // x
-      positions[i * 3 + 1] = Math.random() * 5; // y
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
+    const currentMount = mountRef.current;
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf8fafc);
 
-      velocities[i] = Math.random() * 0.02 + 0.01; // Velocidad hacia arriba
-    }
+    const width = currentMount.clientWidth;
+    const height = currentMount.clientHeight;
 
-    particlesRef.current.geometry.setAttribute(
-      'position',
-      new THREE.BufferAttribute(positions, 3)
-    );
-  }, [count]);
+    camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.set(0, 2, 20);
 
-  useFrame(() => {
-    const positionArray = particlesRef.current.geometry.attributes.position.array;
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    currentMount.appendChild(renderer.domElement);
 
-    for (let i = 0; i < count; i++) {
-      positionArray[i * 3 + 1] += velocities[i]; // Incrementar posición en Y
-      if (positionArray[i * 3 + 1] > 5) {
-        positionArray[i * 3 + 1] = 0; // Reiniciar posición Y
+    // Añadir luces para ver mejor el modelo
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight1.position.set(5, 5, 5);
+    scene.add(directionalLight1);
+
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight2.position.set(-5, -5, -5);
+    scene.add(directionalLight2);
+
+    // Configurar OrbitControls antes de cargar el modelo
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = true;
+    controls.enablePan = true;
+    controls.enableRotate = true;
+    controls.minDistance = 3;
+    controls.maxDistance = 50;
+    controls.target.set(0, 0, 0);
+    controls.update();
+
+    const loader = new GLTFLoader();
+    loader.load(
+      './template.glb', 
+      (gltf) => {
+        const model = gltf.scene;
+        
+        // Escalar el modelo a un tamaño más pequeño
+        model.scale.set(0.3, 0.3, 0.3); 
+
+        scene.add(model);
+        
+        // Centrar el modelo
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        model.position.sub(center);
+        
+        // Actualizar controles después de cargar el modelo
+        controls.target.copy(center);
+        controls.update();
+      },
+      undefined,
+      (error) => {
+        console.error('Error cargando el modelo:', error);
       }
-    }
+    );
 
-    particlesRef.current.geometry.attributes.position.needsUpdate = true;
-  });
+    const animate = () => {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    // Manejar el resize
+    const handleResize = () => {
+      const width = currentMount.clientWidth;
+      const height = currentMount.clientHeight;
+      
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Limpieza
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      currentMount.removeChild(renderer.domElement);
+      renderer.dispose();
+      controls.dispose();
+    };
+  }, []);
 
   return (
-    <points ref={particlesRef}>
-      <bufferGeometry />
-      <pointsMaterial 
-        size={0.1} 
-        color={"orange"} 
-        transparent 
-        opacity={0.8} 
-        blending={THREE.AdditiveBlending} 
-      />
-    </points>
+    <div 
+      ref={mountRef} 
+      className="fixed inset-0 w-full h-full"
+      style={{ 
+        zIndex: 0,
+        pointerEvents: 'auto', // Cambiar a auto para permitir interacción
+        touchAction: 'none' // Importante para el funcionamiento del mouse
+      }}
+    >
+      <Particles /> {/* Añade el componente Particles aquí */}
+    </div>
   );
 };
 
-export default Particles;
+export default Scene;
