@@ -1,5 +1,5 @@
 import React from 'react';
-import Scene from './components/Scene';
+import Scene from './components/Escenecene';
 import Buttons from './components/Buttons';
 
 const App = () => {

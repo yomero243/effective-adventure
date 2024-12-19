@@ -1,4 +1,4 @@
-import { camera } from '../components/Escene'; // Asegúrate de exportar la cámara desde Escene.jsx
+import { camera } from '../components/Scene'; // Asegúrate de exportar la cámara desde Escene.jsx
 
 export const focusCameraOnPoint = (section) => {
   console.log(`Focusing camera on section: ${section}`);
