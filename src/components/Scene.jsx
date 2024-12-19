@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import Particles from './Particles'; // Ruta corregida
+import Particles from './Particles';
 
 export let camera; // Exporta la cámara
 
@@ -50,7 +50,7 @@ const Scene = () => {
 
     const loader = new GLTFLoader();
     loader.load(
-      './template.glb', 
+      './Template.glb', 
       (gltf) => {
         const model = gltf.scene;
         
@@ -104,17 +104,18 @@ const Scene = () => {
   }, []);
 
   return (
-    <div 
-      ref={mountRef} 
-      className="fixed inset-0 w-full h-full"
-      style={{ 
-        zIndex: 0,
-        pointerEvents: 'auto', // Cambiar a auto para permitir interacción
-        touchAction: 'none' // Importante para el funcionamiento del mouse
-      }}
-    >
+    <>
+      <div 
+        ref={mountRef} 
+        className="fixed inset-0 w-full h-full"
+        style={{ 
+          zIndex: 0,
+          pointerEvents: 'auto', // Cambiar a auto para permitir interacción
+          touchAction: 'none' // Importante para el funcionamiento del mouse
+        }}
+      />
       <Particles /> {/* Añade el componente Particles aquí */}
-    </div>
+    </>
   );
 };
 
