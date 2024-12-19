@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Canvas } from '@react-three/fiber';
-import Particles from './particles'; // Asegúrate de que la ruta sea correcta
+import Particles from './Particles'; // Asegúrate de que la ruta sea correcta
 
 export let camera; // Exporta la cámara
 
@@ -119,4 +119,52 @@ const Scene = () => {
   );
 };
 
-export default Scene;
+const Particles = () => {
+  const mountRef = useRef(null);
+
+  useEffect(() => {
+    const currentMount = mountRef.current;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    currentMount.appendChild(renderer.domElement);
+
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 5000;
+    const posArray = new Float32Array(particlesCount * 3);
+
+    for (let i = 0; i < particlesCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 5;
+    }
+
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.005,
+      color: '#ffffff',
+    });
+
+    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particlesMesh);
+
+    camera.position.z = 5;
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      particlesMesh.rotation.y += 0.0005;
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    return () => {
+      currentMount.removeChild(renderer.domElement);
+    };
+  }, []);
+
+  return <div ref={mountRef}></div>;
+};
+
+export default Particles;

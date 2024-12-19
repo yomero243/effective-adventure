@@ -2,8 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { Canvas } from '@react-three/fiber';
-import Particles from './particles'; // Asegúrate de que la ruta sea correcta
+import Particles from './Particles'; // Ruta corregida
 
 export let camera; // Exporta la cámara
 
