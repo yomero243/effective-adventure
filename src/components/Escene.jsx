@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { Canvas } from '@react-three/fiber';
+import Particles from './particles'; // Asegúrate de que la ruta sea correcta
 
 export let camera; // Exporta la cámara
 
@@ -111,7 +113,9 @@ const Scene = () => {
         pointerEvents: 'auto', // Cambiar a auto para permitir interacción
         touchAction: 'none' // Importante para el funcionamiento del mouse
       }}
-    />
+    >
+      <Particles /> {/* Añade el componente Particles aquí */}
+    </div>
   );
 };
 
