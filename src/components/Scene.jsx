@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Particles from './Particles';
-import SkyComponent from "./Sky";
+
 
 export let camera; // Exporta la cámara
 
