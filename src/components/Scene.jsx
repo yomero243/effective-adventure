@@ -71,6 +71,8 @@ const Scene = () => {
         // Actualizar controles después de cargar el modelo
         controls.target.copy(center);
         controls.update();
+
+        console.log('Modelo cargado y añadido a la escena');
       },
       undefined,
       (error) => {
@@ -83,6 +85,7 @@ const Scene = () => {
       requestAnimationFrame(animate);
       controls.update();
       rendererRef.current.render(sceneRef.current, camera);
+      console.log('Renderizando escena');
     };
     animate();
 
