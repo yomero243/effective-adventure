@@ -70,15 +70,19 @@ const Buttons = () => {
   return (
     <div 
       className={`
-        flex h-screen flex-col justify-between border-e bg-white 
+        flex h-screen flex-col justify-between
+        backdrop-blur-md bg-white/30 border-e border-white/20
         transition-all duration-300 ease-in-out
         ${getResponsiveWidth()}
       `}
-      style={{ pointerEvents: 'auto' }}
+      style={{ 
+        pointerEvents: 'auto',
+        backdropFilter: 'blur(8px)',
+      }}
     >
       <div className={`${getResponsivePadding()} py-6`}>
         <span className={`
-          grid place-content-center rounded-lg bg-gray-100 text-xs text-gray-600
+          grid place-content-center rounded-lg bg-white/40 text-xs text-gray-600
           transition-all duration-300
           ${showOnlyEmoji() ? 'h-8 w-12' : 'h-10 w-32'}
         `}>
@@ -103,9 +107,9 @@ const Buttons = () => {
         </ul>
       </div>
 
-      <div className="sticky inset-x-0 bottom-0 border-t border-gray-100">
+      <div className="sticky inset-x-0 bottom-0 border-t border-white/20">
         <a href="#" className={`
-          flex items-center gap-2 bg-white hover:bg-gray-50
+          flex items-center gap-2 bg-white/20 hover:bg-white/30
           ${showOnlyEmoji() ? 'p-2' : 'p-4'}
         `}>
           <img
