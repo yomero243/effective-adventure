@@ -4,7 +4,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Particles from './Particles';
 
-
 export let camera; // Exporta la cámara
 
 const Scene = () => {
@@ -99,6 +98,7 @@ const Scene = () => {
     };
     window.addEventListener("resize", handleResize);
 
+    // Cleanup function
     return () => {
       window.removeEventListener("resize", handleResize);
       currentMount.removeChild(rendererRef.current.domElement);
