@@ -3,8 +3,14 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Particles from './Particles';
+import { focusCameraOnPoint } from "../scene/sceneFunctions";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Buttons from './Buttons';
 
-export let camera; // Exporta la cámara
+gsap.registerPlugin(ScrollTrigger);
+
+export let camera;
 
 const Scene = () => {
   const mountRef = useRef(null);
@@ -33,15 +39,8 @@ const Scene = () => {
     controls.enableZoom = true;
     controls.enablePan = true;
     controls.enableRotate = true;
-    controls.minDistance = 3;
-    controls.maxDistance = 50;
-    controls.target.set(0, 0, 0);
-    controls.update();
 
     // Añadir luces
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    sceneRef.current.add(ambientLight);
-
     const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight1.position.set(5, 5, 5);
     sceneRef.current.add(directionalLight1);
@@ -70,12 +69,10 @@ const Scene = () => {
         // Actualizar controles después de cargar el modelo
         controls.target.copy(center);
         controls.update();
-
-        console.log('Modelo cargado y añadido a la escena');
       },
       undefined,
       (error) => {
-        console.error('Error cargando el modelo:', error);
+        console.error(error);
       }
     );
 
@@ -84,8 +81,8 @@ const Scene = () => {
       requestAnimationFrame(animate);
       controls.update();
       rendererRef.current.render(sceneRef.current, camera);
-      console.log('Renderizando escena');
     };
+
     animate();
 
     // Manejar el resize
@@ -108,21 +105,22 @@ const Scene = () => {
   }, []);
 
   return (
-    <>
-      <div 
-        ref={mountRef} 
-        className="fixed inset-0 w-full h-full"
-        style={{ 
+    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+      <div
+        ref={mountRef}
+        style={{
+          width: '100%',
+          height: '100%',
           zIndex: 0,
-          pointerEvents: 'auto', // Cambiar a auto para permitir interacción
-          touchAction: 'none' // Importante para el funcionamiento del mouse
+          pointerEvents: 'auto',
+          touchAction: 'none'
         }}
       />
-      {sceneRef.current && rendererRef.current && (
-        <SkyComponent scene={sceneRef.current} renderer={rendererRef.current} />
-      )}
-      <Particles /> {/* Añade el componente Particles aquí */}
-    </>
+      <Particles />
+      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}>
+        <Buttons />
+      </div>
+    </div>
   );
 };
 

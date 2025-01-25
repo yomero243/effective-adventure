@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-// Importa la referencia de la cámara o la escena
 import { focusCameraOnPoint } from "../scene/sceneFunctions";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Buttons = () => {
   const [activeSection, setActiveSection] = useState("inicio");
@@ -13,6 +16,10 @@ const Buttons = () => {
 
     // Llama a la función para enfocar la cámara
     focusCameraOnPoint(section);
+  };
+
+  const getResponsivePadding = () => {
+    return windowWidth > 768 ? "px-4" : "px-2";
   };
 
   const getButtonClasses = (section) => {
@@ -33,12 +40,31 @@ const Buttons = () => {
   ];
 
   useEffect(() => {
+    const sections = ["inicio", "sobre-mi", "proyectos", "habilidades", "contacto", "cv"];
+    
+    sections.forEach(section => {
+      ScrollTrigger.create({
+        trigger: `#${section}`,
+        start: "top center",
+        end: "bottom center",
+        onEnter: () => {
+          setActiveSection(section);
+          focusCameraOnPoint(section);
+        },
+        onEnterBack: () => {
+          setActiveSection(section);
+          focusCameraOnPoint(section);
+        }
+      });
+    });
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
 
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
+      ScrollTrigger.refresh();
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -47,6 +73,7 @@ const Buttons = () => {
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
 
@@ -55,12 +82,6 @@ const Buttons = () => {
     if (windowWidth < 640) return 'w-16'; // móvil
     if (windowWidth < 768) return 'w-48'; // tablet
     return 'w-64'; // desktop
-  };
-
-  const getResponsivePadding = () => {
-    if (isScrolled || windowWidth < 640) return 'px-2';
-    if (windowWidth < 768) return 'px-3';
-    return 'px-4';
   };
 
   const showOnlyEmoji = () => {

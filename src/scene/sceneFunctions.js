@@ -1,29 +1,29 @@
-import { camera } from '../components/Scene'; // Asegúrate de exportar la cámara desde Escene.jsx
+import gsap from "gsap";
+import { camera } from "../components/Scene";
+
+const cameraPositions = {
+  inicio: { x: 0, y: 2, z: 20 },
+  "sobre-mi": { x: 20, y: 2, z: 0 },
+  proyectos: { x: -20, y: 2, z: 0 },
+  habilidades: { x: 0, y: 20, z: 0 },
+  contacto: { x: 0, y: 2, z: -20 },
+  cv: { x: 0, y: -10, z: 10 }
+};
 
 export const focusCameraOnPoint = (section) => {
-  console.log(`Focusing camera on section: ${section}`);
+  if (!camera) return;
   
-  switch (section) {
-    case 'inicio':
-      camera.position.set(0, 2, 20);
-      break;
-    case 'sobre-mi':
-      camera.position.set(0, 2, 10);
-      break;
-    case 'proyectos':
-      camera.position.set(0, 2, 5);
-      break;
-    case 'habilidades':
-      camera.position.set(0, 2, 0);
-      break;
-    case 'contacto':
-      camera.position.set(0, 2, -5);
-      break;
-    case 'cv':
-      camera.position.set(0, 2, -10);
-      break;
-    default:
-      camera.position.set(0, 2, 20);
-  }
-  camera.lookAt(0, 0, 0); // Asegúrate de que la cámara mire hacia el centro de la escena
+  const position = cameraPositions[section];
+  if (!position) return;
+
+  gsap.to(camera.position, {
+    x: position.x,
+    y: position.y,
+    z: position.z,
+    duration: 2,
+    ease: "power2.inOut",
+    onUpdate: () => {
+      camera.lookAt(0, 0, 0);
+    }
+  });
 };

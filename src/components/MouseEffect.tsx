@@ -10,12 +10,10 @@ const MouseEffect: React.FC = () => {
   const isHovering = useRef(false);
   const isInitialized = useRef(false);
 
-  // Memoizar la función de actualización para evitar recreaciones innecesarias
   const updateCursorPosition = useCallback(() => {
     if (cursorRef.current) {
       cursorRef.current.style.transform = `translate3d(${mousePosition.current.x}px, ${mousePosition.current.y}px, 0)`;
       
-      // Hacer visible el cursor después de la primera actualización
       if (!isInitialized.current) {
         cursorRef.current.style.opacity = '1';
         isInitialized.current = true;
@@ -29,7 +27,6 @@ const MouseEffect: React.FC = () => {
     let lastMouseY = 0;
     let lastUpdateTime = performance.now();
 
-    // Inicializar la posición en el centro de la pantalla
     const initializePosition = () => {
       mousePosition.current = {
         x: window.innerWidth / 2,
@@ -41,13 +38,11 @@ const MouseEffect: React.FC = () => {
       }
     };
 
-    // Throttle del movimiento del mouse usando RAF
     const handleMouseMove = (event: MouseEvent) => {
       const currentTime = performance.now();
       const timeDelta = currentTime - lastUpdateTime;
 
-      // Aplicar suavizado al movimiento
-      if (timeDelta > 16) { // ~60fps
+      if (timeDelta > 16) {
         const dx = event.clientX - lastMouseX;
         const dy = event.clientY - lastMouseY;
         
@@ -62,7 +57,6 @@ const MouseEffect: React.FC = () => {
       }
     };
 
-    // Delegación de eventos para hover
     const handleInteraction = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       const isInteractive = INTERACTIVE_ELEMENTS.has(target.tagName) || 
@@ -76,17 +70,13 @@ const MouseEffect: React.FC = () => {
       }
     };
 
-    // Inicializar
     initializePosition();
     
-    // Iniciar el loop de animación
     rafId.current = requestAnimationFrame(updateCursorPosition);
 
-    // Event listeners optimizados
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
     document.addEventListener('mouseover', handleInteraction, { passive: true });
     
-    // Ocultar el cursor nativo solo si estamos en un dispositivo con hover
     if (window.matchMedia('(hover: hover)').matches) {
       document.documentElement.style.cursor = 'none';
     }
@@ -111,5 +101,4 @@ const MouseEffect: React.FC = () => {
   );
 };
 
-// Memoizar el componente para evitar re-renders innecesarios
 export default React.memo(MouseEffect);
