@@ -1,13 +1,44 @@
-# ADR 1: Title of the Decision
+# ADR 1: Implementing 3D Interactive Portfolio with Three.js, React, and GSAP
 
 ## Status
-Accepted or Rejected or Deprecated
+Accepted
 
 ## Context
-What is the issue that we're seeing that is motivating this decision or change?
+- Need for a modern, engaging portfolio website
+- Desire to showcase technical skills in 3D web development
+- Requirements for smooth animations and interactive elements
+- Need for maintainable and scalable architecture
+- Goal to stand out from traditional portfolio websites
 
 ## Decision
-What is the change that we're proposing and/or doing?
+We will implement the portfolio using:
+1. React (v18+) as the main framework
+   - Benefits: Component reusability, efficient DOM updates
+   - Context API for state management
+2. Three.js for 3D graphics
+   - React Three Fiber for React integration
+   - Custom 3D models and scenes
+3. GSAP for animations
+   - ScrollTrigger plugin for scroll-based animations
+   - Timeline for sequenced animations
+4. Build tools:
+   - Vite for fast development
+   - TailwindCSS for styling
+5. Architecture:
+   - Separate concerns between 3D scene and UI components
+   - Custom hooks for Three.js logic
+   - Modular component structure
 
 ## Consequences
-What becomes easier or more difficult to do because of this change?
+### Positive
+- Rich, interactive user experience
+- Better showcase of technical capabilities
+- Modular and maintainable codebase
+- Optimized performance with modern tools
+
+### Challenges
+- Higher initial learning curve
+- More complex state management
+- Needs careful performance optimization
+- Requires 3D asset management
+- Mobile performance considerations
