@@ -9,12 +9,13 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@react-three/fiber": "^8.17.10",
+    "@react-three/drei": "^8.20.2",
+    "@react-three/fiber": "^8.18.0",
     "gsap": "^3.12.5",
     "lil-gui": "^0.20.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "three": "^0.170.0"
+    "three": "^0.146.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

@@ -14,8 +14,13 @@ const Buttons = () => {
     setActiveSection(section);
     document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
 
-    // Llama a la función para enfocar la cámara
+    // Llamar a la función para enfocar la cámara (mantiene compatibilidad con el código existente)
     focusCameraOnPoint(section);
+    
+    // Emitir un evento personalizado que los componentes R3F pueden escuchar
+    window.dispatchEvent(new CustomEvent('camera-navigation', { 
+      detail: { section } 
+    }));
   };
 
   const getResponsivePadding = () => {

@@ -1,113 +1,115 @@
 import React, { useEffect, useRef } from 'react';
+import { Canvas, useThree, useFrame } from '@react-three/fiber';
+import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Particles from './Particles';
-import { focusCameraOnPoint } from "../scene/sceneFunctions";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Buttons from './Buttons';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export let camera;
-
-const Scene = () => {
-  const mountRef = useRef(null);
-  const sceneRef = useRef(null);
-  const rendererRef = useRef(null);
-
-  useEffect(() => {
-    const currentMount = mountRef.current;
-    sceneRef.current = new THREE.Scene();
-    sceneRef.current.background = new THREE.Color(0xf8fafc);
-    rendererRef.current = new THREE.WebGLRenderer({ antialias: true });
-
-    // Configurar cámara
-    const width = currentMount.clientWidth;
-    const height = currentMount.clientHeight;
-    camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    camera.position.set(0, 2, 20);
-
-    rendererRef.current.setSize(width, height);
-    currentMount.appendChild(rendererRef.current.domElement);
-
-    // Configurar controles
-    const controls = new OrbitControls(camera, rendererRef.current.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.enableZoom = true;
-    controls.enablePan = true;
-    controls.enableRotate = true;
-
-    // Añadir luces
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight1.position.set(5, 5, 5);
-    sceneRef.current.add(directionalLight1);
-
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight2.position.set(-5, -5, -5);
-    sceneRef.current.add(directionalLight2);
-
-    // Añadir modelo
-    const loader = new GLTFLoader();
-    loader.load(
-      './Template.glb', 
-      (gltf) => {
-        const model = gltf.scene;
-        
-        // Escalar el modelo a un tamaño más pequeño
-        model.scale.set(0.3, 0.3, 0.3); 
-
-        sceneRef.current.add(model);
-        
-        // Centrar el modelo
-        const box = new THREE.Box3().setFromObject(model);
-        const center = box.getCenter(new THREE.Vector3());
-        model.position.sub(center);
-        
-        // Actualizar controles después de cargar el modelo
-        controls.target.copy(center);
-        controls.update();
-      },
-      undefined,
-      (error) => {
-        console.error(error);
-      }
-    );
-
-    // Añadir animación
-    const animate = () => {
-      requestAnimationFrame(animate);
-      controls.update();
-      rendererRef.current.render(sceneRef.current, camera);
-    };
-
-    animate();
-
-    // Manejar el resize
-    const handleResize = () => {
-      const width = currentMount.clientWidth;
-      const height = currentMount.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      rendererRef.current.setSize(width, height);
-    };
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup function
+// Componente para el modelo 3D
+const Model = () => {
+  const { scene } = useGLTF('./Template.glb');
+  
+  React.useEffect(() => {
+    // Escalar el modelo
+    scene.scale.set(0.3, 0.3, 0.3);
+    
+    // Centrar el modelo
+    const box = new THREE.Box3().setFromObject(scene);
+    const center = box.getCenter(new THREE.Vector3());
+    scene.position.sub(center);
+    
     return () => {
-      window.removeEventListener("resize", handleResize);
-      currentMount.removeChild(rendererRef.current.domElement);
-      controls.dispose();
-      rendererRef.current.dispose();
+      // Limpieza
+      useGLTF.preload('./Template.glb');
     };
-  }, []);
+  }, [scene]);
+  
+  return <primitive object={scene} />;
+};
+
+// Componente para las luces
+const Lights = () => {
+  return (
+    <>
+      <directionalLight position={[5, 5, 5]} intensity={1} />
+      <directionalLight position={[-5, -5, -5]} intensity={1} />
+    </>
+  );
+};
+
+// Componente que escucha los eventos de navegación y mueve la cámara
+const CameraController = () => {
+  const { camera } = useThree();
+  const controlsRef = useRef();
+
+  // Posiciones de la cámara para diferentes secciones
+  const cameraPositions = {
+    inicio: { x: 0, y: 2, z: 20 },
+    "sobre-mi": { x: 20, y: 2, z: 0 },
+    proyectos: { x: -20, y: 2, z: 0 },
+    habilidades: { x: 0, y: 20, z: 0 },
+    contacto: { x: 0, y: 2, z: -20 },
+    cv: { x: 0, y: -10, z: 10 }
+  };
+
+  // Escuchar eventos de navegación
+  useEffect(() => {
+    const handleCameraNavigation = (event) => {
+      const { section } = event.detail;
+      const position = cameraPositions[section];
+      
+      if (!position) return;
+
+      gsap.to(camera.position, {
+        x: position.x,
+        y: position.y,
+        z: position.z,
+        duration: 2,
+        ease: "power2.inOut",
+        onUpdate: () => {
+          camera.lookAt(0, 0, 0);
+          if (controlsRef.current) {
+            controlsRef.current.target.set(0, 0, 0);
+            controlsRef.current.update();
+          }
+        }
+      });
+    };
+
+    window.addEventListener('camera-navigation', handleCameraNavigation);
+    
+    return () => {
+      window.removeEventListener('camera-navigation', handleCameraNavigation);
+    };
+  }, [camera]);
+
+  // Actualizar los controles en cada frame
+  useFrame(() => {
+    if (controlsRef.current) {
+      controlsRef.current.update();
+    }
+  });
 
   return (
+    <OrbitControls 
+      ref={controlsRef}
+      enableDamping
+      dampingFactor={0.05}
+      enableZoom
+      enablePan
+      enableRotate
+    />
+  );
+};
+
+const Scene = () => {
+  return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
-      <div
-        ref={mountRef}
+      <Canvas 
         style={{
           width: '100%',
           height: '100%',
@@ -115,7 +117,13 @@ const Scene = () => {
           pointerEvents: 'auto',
           touchAction: 'none'
         }}
-      />
+        camera={{ position: [0, 2, 20], fov: 75, near: 0.1, far: 1000 }}
+      >
+        <color attach="background" args={[0xf8fafc]} />
+        <Lights />
+        <Model />
+        <CameraController />
+      </Canvas>
       <Particles />
       <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}>
         <Buttons />
