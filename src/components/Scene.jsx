@@ -1,13 +1,20 @@
 import React, { useEffect, useRef } from 'react';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
-import { OrbitControls, useGLTF } from '@react-three/drei';
-import * as THREE from 'three';
+import { 
+  OrbitControls, 
+  useGLTF, 
+  Center, 
+  PerspectiveCamera,
+} from '@react-three/drei';
 import Particles from './Particles';
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Buttons from './Buttons';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Precargar el modelo
+useGLTF.preload('./Template.glb');
 
 // Componente para el modelo 3D
 const Model = () => {
@@ -16,19 +23,13 @@ const Model = () => {
   React.useEffect(() => {
     // Escalar el modelo
     scene.scale.set(0.3, 0.3, 0.3);
-    
-    // Centrar el modelo
-    const box = new THREE.Box3().setFromObject(scene);
-    const center = box.getCenter(new THREE.Vector3());
-    scene.position.sub(center);
-    
-    return () => {
-      // Limpieza
-      useGLTF.preload('./Template.glb');
-    };
   }, [scene]);
   
-  return <primitive object={scene} />;
+  return (
+    <Center>
+      <primitive object={scene} />
+    </Center>
+  );
 };
 
 // Componente para las luces
@@ -37,6 +38,7 @@ const Lights = () => {
     <>
       <directionalLight position={[5, 5, 5]} intensity={1} />
       <directionalLight position={[-5, -5, -5]} intensity={1} />
+      <ambientLight intensity={0.3} />
     </>
   );
 };
@@ -102,6 +104,7 @@ const CameraController = () => {
       enableZoom
       enablePan
       enableRotate
+      makeDefault
     />
   );
 };
@@ -117,16 +120,25 @@ const Scene = () => {
           pointerEvents: 'auto',
           touchAction: 'none'
         }}
-        camera={{ position: [0, 2, 20], fov: 75, near: 0.1, far: 1000 }}
       >
-        <color attach="background" args={[0xf8fafc]} />
+        <color attach="background" args={[0xffffff]} />
+        <PerspectiveCamera makeDefault position={[0, 2, 20]} fov={75} near={0.1} far={1000} />
         <Lights />
         <Model />
         <CameraController />
       </Canvas>
-      <Particles />
-      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}>
-        <Buttons />
+      <div style={{ 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        width: '100%', 
+        height: '100%', 
+        pointerEvents: 'none' 
+      }}>
+        <Particles />
+        <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10, pointerEvents: 'auto' }}>
+          <Buttons />
+        </div>
       </div>
     </div>
   );
