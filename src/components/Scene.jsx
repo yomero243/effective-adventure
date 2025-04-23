@@ -9,7 +9,6 @@ import {
 import Particles from './Particles';
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Buttons from './Buttons';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,7 +16,7 @@ gsap.registerPlugin(ScrollTrigger);
 useGLTF.preload('./Template.glb');
 
 // Componente para el modelo 3D
-const Model = () => {
+const ModelComponent = () => {
   const { scene } = useGLTF('./Template.glb');
   
   React.useEffect(() => {
@@ -32,8 +31,11 @@ const Model = () => {
   );
 };
 
+const Model = React.memo(ModelComponent);
+Model.displayName = 'Model';
+
 // Componente para las luces
-const Lights = () => {
+const LightsComponent = () => {
   return (
     <>
       <directionalLight position={[5, 5, 5]} intensity={1} />
@@ -43,20 +45,23 @@ const Lights = () => {
   );
 };
 
+const Lights = React.memo(LightsComponent);
+Lights.displayName = 'Lights';
+
+// Posiciones de la cámara para diferentes secciones
+const cameraPositions = {
+  inicio: { x: 0, y: 2, z: 20 },
+  "sobre-mi": { x: 20, y: 2, z: 0 },
+  proyectos: { x: -20, y: 2, z: 0 },
+  habilidades: { x: 0, y: 20, z: 0 },
+  contacto: { x: 0, y: 2, z: -20 },
+  cv: { x: 0, y: -10, z: 10 }
+};
+
 // Componente que escucha los eventos de navegación y mueve la cámara
-const CameraController = () => {
+const CameraControllerComponent = () => {
   const { camera } = useThree();
   const controlsRef = useRef();
-
-  // Posiciones de la cámara para diferentes secciones
-  const cameraPositions = {
-    inicio: { x: 0, y: 2, z: 20 },
-    "sobre-mi": { x: 20, y: 2, z: 0 },
-    proyectos: { x: -20, y: 2, z: 0 },
-    habilidades: { x: 0, y: 20, z: 0 },
-    contacto: { x: 0, y: 2, z: -20 },
-    cv: { x: 0, y: -10, z: 10 }
-  };
 
   // Escuchar eventos de navegación
   useEffect(() => {
@@ -109,6 +114,9 @@ const CameraController = () => {
   );
 };
 
+const CameraController = React.memo(CameraControllerComponent);
+CameraController.displayName = 'CameraController';
+
 const Scene = () => {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
@@ -116,9 +124,6 @@ const Scene = () => {
         style={{
           width: '100%',
           height: '100%',
-          zIndex: 0,
-          pointerEvents: 'auto',
-          touchAction: 'none'
         }}
       >
         <color attach="background" args={[0xffffff]} />
@@ -126,20 +131,8 @@ const Scene = () => {
         <Lights />
         <Model />
         <CameraController />
-      </Canvas>
-      <div style={{ 
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
-        width: '100%', 
-        height: '100%', 
-        pointerEvents: 'none' 
-      }}>
         <Particles />
-        <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10, pointerEvents: 'auto' }}>
-          <Buttons />
-        </div>
-      </div>
+      </Canvas>
     </div>
   );
 };

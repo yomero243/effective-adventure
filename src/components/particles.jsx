@@ -1,12 +1,13 @@
-import React, { useRef } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import React, { useRef, useEffect } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
 /**
  * Componente que renderiza un efecto de partículas que siguen al cursor
- * @returns {JSX.Element} Componente de partículas
+ * (Renombrado de ParticlesEffect a ParticlesInstance)
+ * @returns {JSX.Element} Componente de partículas 3D
  */
-const ParticlesEffect = () => {
+const ParticlesInstance = () => {
   const particlesRef = useRef();
   const mousePosition = useRef({ x: 0, y: 0, z: 0 });
   
@@ -18,7 +19,7 @@ const ParticlesEffect = () => {
   });
 
   // Inicializar datos de partículas
-  React.useEffect(() => {
+  useEffect(() => {
     for (let i = 0; i < particlesData.current.count; i++) {
       const i3 = i * 3;
       particlesData.current.velocities[i3] = (Math.random() - 0.5) * 0.2;
@@ -31,7 +32,7 @@ const ParticlesEffect = () => {
 
   // Crear partícula con degradado radial (textura)
   const textureRef = useRef();
-  React.useEffect(() => {
+  useEffect(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 32;
     canvas.height = 32;
@@ -50,12 +51,11 @@ const ParticlesEffect = () => {
 
   // Manejar movimiento del mouse
   const { viewport } = useThree();
-  React.useEffect(() => {
+  useEffect(() => {
     const handleMouseMove = (event) => {
       const x = (event.clientX / window.innerWidth) * 2 - 1;
       const y = -(event.clientY / window.innerHeight) * 2 + 1;
       
-      // Convertir coordenadas de pantalla a coordenadas del mundo
       mousePosition.current.x = x * viewport.width / 2;
       mousePosition.current.y = y * viewport.height / 2;
     };
@@ -84,7 +84,7 @@ const ParticlesEffect = () => {
 
       lifetimes[i]--;
 
-      if (lifetimes[i] <= 0 || positions[i3 + 1] < -2) {
+      if (lifetimes[i] <= 0 || positions[i3 + 1] < -viewport.height / 2 -1) {
         positions[i3] = mousePosition.current.x;
         positions[i3 + 1] = mousePosition.current.y;
         positions[i3 + 2] = mousePosition.current.z;
@@ -124,18 +124,8 @@ const ParticlesEffect = () => {
   );
 };
 
-const Particles = () => {
-  return (
-    <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
-      <Canvas
-        style={{ width: '100%', height: '100%' }}
-        camera={{ position: [0, 0, 2], fov: 75 }}
-        gl={{ alpha: true, antialias: true }}
-      >
-        <ParticlesEffect />
-      </Canvas>
-    </div>
-  );
-};
+// Exportar directamente el componente de instancia de partículas, envuelto en memo
+const Particles = React.memo(ParticlesInstance);
+Particles.displayName = 'Particles';
 
-export default React.memo(Particles);
+export default Particles;
