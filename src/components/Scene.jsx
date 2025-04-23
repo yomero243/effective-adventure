@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import React, { useEffect, useRef } from 'react';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { 
@@ -48,14 +49,14 @@ const LightsComponent = () => {
 const Lights = React.memo(LightsComponent);
 Lights.displayName = 'Lights';
 
-// Posiciones de la cámara para diferentes secciones
+// Posiciones de la cámara para diferentes secciones - Acercadas
 const cameraPositions = {
-  inicio: { x: 0, y: 2, z: 20 },
-  "sobre-mi": { x: 20, y: 2, z: 0 },
-  proyectos: { x: -20, y: 2, z: 0 },
-  habilidades: { x: 0, y: 20, z: 0 },
-  contacto: { x: 0, y: 2, z: -20 },
-  cv: { x: 0, y: -10, z: 10 }
+  inicio: { x: 0, y: 1.5, z: 10 }, // Más cerca
+  "sobre-mi": { x: 10, y: 1.5, z: 0 }, // Más cerca
+  proyectos: { x: -10, y: 1.5, z: 0 }, // Más cerca
+  habilidades: { x: 0, y: 10, z: 0 }, // Más cerca
+  contacto: { x: 0, y: 1.5, z: -10 }, // Más cerca
+  cv: { x: 0, y: -5, z: 5 } // Más cerca
 };
 
 // Componente que escucha los eventos de navegación y mueve la cámara
@@ -75,7 +76,7 @@ const CameraControllerComponent = () => {
         x: position.x,
         y: position.y,
         z: position.z,
-        duration: 2,
+        duration: 1.5, // Duración ligeramente reducida para la nueva distancia
         ease: "power2.inOut",
         onUpdate: () => {
           camera.lookAt(0, 0, 0);
@@ -126,8 +127,8 @@ const Scene = () => {
           height: '100%',
         }}
       >
-        <color attach="background" args={[0xffffff]} />
-        <PerspectiveCamera makeDefault position={[0, 2, 20]} fov={75} near={0.1} far={1000} />
+        <color attach="background" args={[0x111111]} /> {/* Fondo oscuro */}
+        <PerspectiveCamera makeDefault position={[0, 1.5, 10]} fov={75} near={0.1} far={1000} /> {/* Posición inicial actualizada */}
         <Lights />
         <Model />
         <CameraController />

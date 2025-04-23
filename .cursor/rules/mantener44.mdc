@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+No funciones nuevas, no contextos mágicos, solo React + drei + fiber + three.js y limpieza absoluta de ESLint

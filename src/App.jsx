@@ -10,7 +10,7 @@ import './App.css';
  */
 const App = () => {
   return (
-    <div className="relative min-h-screen bg-white"> {/* Contenedor principal relativo */}
+    <div className="relative min-h-screen bg-gray-30"> {/* Contenedor principal relativo */}
 
       {/* 1. Escena 3D Fija en el Fondo */}
       {/* z-0: Capa base */}
