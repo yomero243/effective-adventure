@@ -6,9 +6,8 @@ import './App.css';
 
 /**
  * Componente principal de la aplicación con estructura para secciones y escena fija.
- * @returns {JSX.Element} Componente App
  */
-const App = () => {
+const App: React.FC = () => {
   return (
     <div className="relative min-h-screen bg-gray-30"> {/* Contenedor principal relativo */}
 
@@ -26,19 +25,14 @@ const App = () => {
 
 
       {/* 2. Botones Fijos (ej: a la izquierda) */}
-      {/* Ajustar 'w-64' al ancho real MÁXIMO de tus botones/barra lateral */}
       {/* z-30: Capa superior para interacción */}
-      <div className="fixed top-0 left-0 h-screen z-30"> {/* w-xx se maneja dentro de Buttons */}
+      <div className="fixed top-0 left-0 h-screen z-30">
         <Buttons />
       </div>
 
       {/* 3. Contenido Principal Desplazable */}
-      {/* ml-xx debe coincidir con el ancho MÍNIMO de Buttons (cuando está colapsado) */}
-      {/* Ajustar 'ml-16' al ancho MÍNIMO de Buttons (cuando solo muestra emojis) */}
       {/* z-20: Sobre la escena, debajo de los botones */}
-      <main className="relative z-20 ml-16"> {/* O ajusta el margen según el ancho colapsado de Buttons */}
-        {/* Añadir las secciones requeridas por Buttons y ScrollTrigger */}
-        {/* Usar clases de Tailwind para dar estilo y altura */}
+      <main className="relative z-20 ml-16">
         <section id="inicio" className="min-h-screen flex items-center justify-center text-center p-4">
           <div>
             <h1 className="text-4xl font-bold text-gray-800">Sección Inicio</h1>
@@ -57,7 +51,7 @@ const App = () => {
             <p className="text-gray-600 mt-2">Mis proyectos destacados.</p>
            </div>
         </section>
-        <section id="habilidades" className="min-h-screen flex items-center justify-center text-center p-4 bg-gray-50">
+        <section id="habilidades" className="min-h-screen flex items-center justify-center text-center p-4 bg-gray-0">
            <div>
             <h1 className="text-4xl font-bold text-gray-800">Sección Habilidades</h1>
             <p className="text-gray-600 mt-2">Mis habilidades técnicas.</p>
@@ -81,4 +75,4 @@ const App = () => {
   );
 };
 
-export default React.memo(App);
+export default React.memo(App); 

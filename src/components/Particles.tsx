@@ -2,17 +2,27 @@ import React, { useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
+interface ParticlesData {
+  velocities: Float32Array;
+  lifetimes: Float32Array;
+  count: number;
+}
+
+interface MousePosition {
+  x: number;
+  y: number;
+  z: number;
+}
+
 /**
  * Componente que renderiza un efecto de partículas que siguen al cursor
- * (Renombrado de ParticlesEffect a ParticlesInstance)
- * @returns {JSX.Element} Componente de partículas 3D
  */
-const ParticlesInstance = () => {
-  const particlesRef = useRef();
-  const mousePosition = useRef({ x: 0, y: 0, z: 0 });
+const ParticlesInstance: React.FC = () => {
+  const particlesRef = useRef<THREE.Points>(null);
+  const mousePosition = useRef<MousePosition>({ x: 0, y: 0, z: 0 });
   
   // Variables para animación de partículas
-  const particlesData = useRef({
+  const particlesData = useRef<ParticlesData>({
     velocities: new Float32Array(5000 * 3),
     lifetimes: new Float32Array(5000),
     count: 5000
@@ -31,28 +41,30 @@ const ParticlesInstance = () => {
   }, []);
 
   // Crear partícula con degradado radial (textura)
-  const textureRef = useRef();
+  const textureRef = useRef<THREE.Texture | null>(null);
   useEffect(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 32;
     canvas.height = 32;
     const context = canvas.getContext('2d');
     
-    const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, 32, 32);
-    
-    const texture = new THREE.Texture(canvas);
-    texture.needsUpdate = true;
-    textureRef.current = texture;
+    if (context) {
+      const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, 32, 32);
+      
+      const texture = new THREE.Texture(canvas);
+      texture.needsUpdate = true;
+      textureRef.current = texture;
+    }
   }, []);
 
   // Manejar movimiento del mouse
   const { viewport } = useThree();
   useEffect(() => {
-    const handleMouseMove = (event) => {
+    const handleMouseMove = (event: MouseEvent) => {
       const x = (event.clientX / window.innerWidth) * 2 - 1;
       const y = -(event.clientY / window.innerHeight) * 2 + 1;
       
@@ -70,7 +82,7 @@ const ParticlesInstance = () => {
   useFrame(() => {
     if (!particlesRef.current) return;
     
-    const positions = particlesRef.current.geometry.attributes.position.array;
+    const positions = particlesRef.current.geometry.attributes.position.array as Float32Array;
     const { velocities, lifetimes, count } = particlesData.current;
 
     for (let i = 0; i < count; i++) {
@@ -128,4 +140,4 @@ const ParticlesInstance = () => {
 const Particles = React.memo(ParticlesInstance);
 Particles.displayName = 'Particles';
 
-export default Particles;
+export default Particles; 

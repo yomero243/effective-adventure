@@ -16,13 +16,29 @@ gsap.registerPlugin(ScrollTrigger);
 // Precargar el modelo
 useGLTF.preload('./Template.glb');
 
+// Interfaces
+interface CameraNavigationEvent extends Event {
+  detail: {
+    section: string;
+  };
+}
+
+interface CameraPosition {
+  x: number;
+  y: number;
+  z: number;
+}
+
+interface CameraPositions {
+  [key: string]: CameraPosition;
+}
+
 // Componente para el modelo 3D
-const ModelComponent = () => {
+const ModelComponent: React.FC = () => {
   const { scene } = useGLTF('./Template.glb');
   
   React.useEffect(() => {
-    // Escalar el modelo
-    scene.scale.set(0.3, 0.3, 0.3);
+    scene.scale.set(0.6, 0.6, 0.6);
   }, [scene]);
   
   return (
@@ -36,38 +52,38 @@ const Model = React.memo(ModelComponent);
 Model.displayName = 'Model';
 
 // Componente para las luces
-const LightsComponent = () => {
+const LightsComponent: React.FC = () => {
   return (
-    <>
+    <group>
       <directionalLight position={[5, 5, 5]} intensity={1} />
       <directionalLight position={[-5, -5, -5]} intensity={1} />
       <ambientLight intensity={0.3} />
-    </>
+    </group>
   );
 };
 
 const Lights = React.memo(LightsComponent);
 Lights.displayName = 'Lights';
 
-// Posiciones de la cámara para diferentes secciones - Acercadas
-const cameraPositions = {
-  inicio: { x: 0, y: 1.5, z: 10 }, // Más cerca
-  "sobre-mi": { x: 10, y: 1.5, z: 0 }, // Más cerca
-  proyectos: { x: -10, y: 1.5, z: 0 }, // Más cerca
-  habilidades: { x: 0, y: 10, z: 0 }, // Más cerca
-  contacto: { x: 0, y: 1.5, z: -10 }, // Más cerca
-  cv: { x: 0, y: -5, z: 5 } // Más cerca
+// Posiciones de la cámara para diferentes secciones
+const cameraPositions: CameraPositions = {
+  inicio: { x: 0, y: 1.5, z: 10 },
+  "sobre-mi": { x: 10, y: 1.5, z: 0 },
+  proyectos: { x: -10, y: 1.5, z: 0 },
+  habilidades: { x: 0, y: 10, z: 0 },
+  contacto: { x: 0, y: 1.5, z: -10 },
+  cv: { x: 0, y: -5, z: 5 }
 };
 
 // Componente que escucha los eventos de navegación y mueve la cámara
-const CameraControllerComponent = () => {
+const CameraControllerComponent: React.FC = () => {
   const { camera } = useThree();
-  const controlsRef = useRef();
+  const controlsRef = useRef<any>(null);
 
-  // Escuchar eventos de navegación
   useEffect(() => {
-    const handleCameraNavigation = (event) => {
-      const { section } = event.detail;
+    const handleCameraNavigation = (event: Event) => {
+      const customEvent = event as CameraNavigationEvent;
+      const { section } = customEvent.detail;
       const position = cameraPositions[section];
       
       if (!position) return;
@@ -76,7 +92,7 @@ const CameraControllerComponent = () => {
         x: position.x,
         y: position.y,
         z: position.z,
-        duration: 1.5, // Duración ligeramente reducida para la nueva distancia
+        duration: 1.5,
         ease: "power2.inOut",
         onUpdate: () => {
           camera.lookAt(0, 0, 0);
@@ -95,7 +111,6 @@ const CameraControllerComponent = () => {
     };
   }, [camera]);
 
-  // Actualizar los controles en cada frame
   useFrame(() => {
     if (controlsRef.current) {
       controlsRef.current.update();
@@ -118,17 +133,12 @@ const CameraControllerComponent = () => {
 const CameraController = React.memo(CameraControllerComponent);
 CameraController.displayName = 'CameraController';
 
-const Scene = () => {
+const Scene: React.FC = () => {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
-      <Canvas 
-        style={{
-          width: '100%',
-          height: '100%',
-        }}
-      >
-        <color attach="background" args={[0x111111]} /> {/* Fondo oscuro */}
-        <PerspectiveCamera makeDefault position={[0, 1.5, 10]} fov={75} near={0.1} far={1000} /> {/* Posición inicial actualizada */}
+      <Canvas style={{width: '100%',height: '100%'}}>
+        <color attach="background" args={[0x111111]} />
+        <PerspectiveCamera makeDefault position={[0, 1.5, 10]} fov={75} near={0.1} far={1000} />
         <Lights />
         <Model />
         <CameraController />
@@ -138,4 +148,4 @@ const Scene = () => {
   );
 };
 
-export default Scene;
+export default Scene; 

@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { focusCameraOnPoint } from "../scene/sceneFunctions";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const Buttons = () => {
-  const [activeSection, setActiveSection] = useState("inicio");
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+interface ButtonItem {
+  id: string;
+  label: string;
+  emoji: string;
+}
 
-  const handleNavigation = (section) => {
+const Buttons: React.FC = () => {
+  const [activeSection, setActiveSection] = useState<string>("inicio");
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+
+  const handleNavigation = (section: string): void => {
     setActiveSection(section);
     document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
-
-    // Llamar a la función para enfocar la cámara (mantiene compatibilidad con el código existente)
-    focusCameraOnPoint(section);
     
     // Emitir un evento personalizado que los componentes R3F pueden escuchar
     window.dispatchEvent(new CustomEvent('camera-navigation', { 
@@ -23,11 +25,11 @@ const Buttons = () => {
     }));
   };
 
-  const getResponsivePadding = () => {
+  const getResponsivePadding = (): string => {
     return windowWidth > 768 ? "px-4" : "px-2";
   };
 
-  const getButtonClasses = (section) => {
+  const getButtonClasses = (section: string): string => {
     return `block rounded-lg ${getResponsivePadding()} py-2 text-sm font-medium ${
       activeSection === section 
       ? "bg-gray-100 text-gray-700" 
@@ -35,7 +37,7 @@ const Buttons = () => {
     }`;
   };
 
-  const buttons = [
+  const buttons: ButtonItem[] = [
     { id: "inicio", label: "Inicio", emoji: "🏠" },
     { id: "sobre-mi", label: "Sobre mí", emoji: "👨‍💻" },
     { id: "proyectos", label: "Proyectos", emoji: "🚀" },
@@ -45,7 +47,7 @@ const Buttons = () => {
   ];
 
   useEffect(() => {
-    const sections = ["inicio", "sobre-mi", "proyectos", "habilidades", "contacto", "cv"];
+    const sections: string[] = ["inicio", "sobre-mi", "proyectos", "habilidades", "contacto", "cv"];
     
     sections.forEach(section => {
       ScrollTrigger.create({
@@ -54,20 +56,20 @@ const Buttons = () => {
         end: "bottom center",
         onEnter: () => {
           setActiveSection(section);
-          focusCameraOnPoint(section);
+          window.dispatchEvent(new CustomEvent('camera-navigation', { detail: { section } }));
         },
         onEnterBack: () => {
           setActiveSection(section);
-          focusCameraOnPoint(section);
+          window.dispatchEvent(new CustomEvent('camera-navigation', { detail: { section } }));
         }
       });
     });
 
-    const handleScroll = () => {
+    const handleScroll = (): void => {
       setIsScrolled(window.scrollY > 50);
     };
 
-    const handleResize = () => {
+    const handleResize = (): void => {
       setWindowWidth(window.innerWidth);
       ScrollTrigger.refresh();
     };
@@ -82,14 +84,14 @@ const Buttons = () => {
     };
   }, []);
 
-  const getResponsiveWidth = () => {
+  const getResponsiveWidth = (): string => {
     if (isScrolled) return 'w-16';
     if (windowWidth < 640) return 'w-16'; // móvil
     if (windowWidth < 768) return 'w-48'; // tablet
     return 'w-64'; // desktop
   };
 
-  const showOnlyEmoji = () => {
+  const showOnlyEmoji = (): boolean => {
     return isScrolled || windowWidth < 640;
   };
 
@@ -157,4 +159,4 @@ const Buttons = () => {
   );
 };
 
-export default Buttons;
+export default Buttons; 
