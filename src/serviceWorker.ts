@@ -1,3 +1,5 @@
+/// <reference path="./types/service-worker.d.ts" />
+
 const CACHE_NAME = 'cursor-cache-v1';
 const STATIC_ASSETS = [
   '/',

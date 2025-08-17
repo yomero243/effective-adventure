@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -14,10 +14,17 @@ const Buttons: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>("inicio");
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const buttonsRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<HTMLButtonElement[]>([]);
 
   const handleNavigation = (section: string): void => {
     setActiveSection(section);
-    document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
+    
+    // Animación suave del scroll manual
+    const targetElement = document.getElementById(section);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth" });
+    }
     
     // Emitir un evento personalizado que los componentes R3F pueden escuchar
     window.dispatchEvent(new CustomEvent('camera-navigation', { 
@@ -48,6 +55,26 @@ const Buttons: React.FC = () => {
 
   useEffect(() => {
     const sections: string[] = ["inicio", "sobre-mi", "proyectos", "habilidades", "contacto", "cv"];
+    
+    // Animación de entrada de los botones
+    if (buttonsRef.current && buttonRefs.current.length > 0) {
+      gsap.fromTo(buttonRefs.current, 
+        { 
+          x: -100, 
+          opacity: 0,
+          scale: 0.8
+        },
+        { 
+          x: 0, 
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: "back.out(1.7)",
+          stagger: 0.1,
+          delay: 0.2
+        }
+      );
+    }
     
     sections.forEach(section => {
       ScrollTrigger.create({
@@ -95,8 +122,27 @@ const Buttons: React.FC = () => {
     return isScrolled || windowWidth < 640;
   };
 
+  const handleButtonHover = (button: HTMLButtonElement, isEntering: boolean) => {
+    if (isEntering) {
+      gsap.to(button, {
+        scale: 1.05,
+        x: 5,
+        duration: 0.3,
+        ease: "power2.out"
+      });
+    } else {
+      gsap.to(button, {
+        scale: 1,
+        x: 0,
+        duration: 0.3,
+        ease: "power2.out"
+      });
+    }
+  };
+
   return (
     <div 
+      ref={buttonsRef}
       className={`
         flex h-screen flex-col justify-between
         backdrop-blur-md bg-white/30 border-e border-white/20
@@ -118,10 +164,15 @@ const Buttons: React.FC = () => {
         </span>
 
         <ul className="mt-6 space-y-1">
-          {buttons.map(({ id, label, emoji }) => (
+          {buttons.map(({ id, label, emoji }, index) => (
             <li key={id}>
               <button
+                ref={(el) => {
+                  if (el) buttonRefs.current[index] = el;
+                }}
                 onClick={() => handleNavigation(id)}
+                onMouseEnter={(e) => handleButtonHover(e.currentTarget, true)}
+                onMouseLeave={(e) => handleButtonHover(e.currentTarget, false)}
                 className={getButtonClasses(id)}
                 aria-label={`Navigate to ${label}`}
               >
