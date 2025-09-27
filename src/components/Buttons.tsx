@@ -4,12 +4,25 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+/**
+ * @interface ButtonItem
+ * @description Defines the structure for a navigation button item.
+ * @property {string} id - The unique identifier for the section the button navigates to.
+ * @property {string} label - The text label displayed on the button.
+ * @property {string} emoji - The emoji displayed on the button.
+ */
 interface ButtonItem {
   id: string;
   label: string;
   emoji: string;
 }
 
+/**
+ * @component Buttons
+ * @description A sidebar component that provides navigation buttons for different sections of the page.
+ * It features responsive behavior, animations, and updates based on scroll position.
+ * @returns {React.FC} The rendered component.
+ */
 const Buttons: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>("inicio");
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
@@ -17,55 +30,77 @@ const Buttons: React.FC = () => {
   const buttonsRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<HTMLButtonElement[]>([]);
 
+  /**
+   * @function handleNavigation
+   * @description Handles the click event on a navigation button, scrolling to the corresponding section
+   * and dispatching a custom event to control the 3D camera.
+   * @param {string} section - The ID of the section to navigate to.
+   */
   const handleNavigation = (section: string): void => {
     setActiveSection(section);
-    
-    // Animación suave del scroll manual
+
+    // Smooth scroll to the target section
     const targetElement = document.getElementById(section);
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: "smooth" });
     }
-    
-    // Emitir un evento personalizado que los componentes R3F pueden escuchar
-    window.dispatchEvent(new CustomEvent('camera-navigation', { 
-      detail: { section } 
+
+    // Dispatch a custom event for R3F components to listen to
+    window.dispatchEvent(new CustomEvent('camera-navigation', {
+      detail: { section }
     }));
   };
 
+  /**
+   * @function getResponsivePadding
+   * @description Determines the appropriate padding for buttons based on the window width.
+   * @returns {string} The Tailwind CSS class for padding.
+   */
+  /**
+   * @function getResponsivePadding
+   * @description Determines the appropriate padding for buttons based on the window width.
+   * @returns {string} The Tailwind CSS class for padding.
+   */
   const getResponsivePadding = (): string => {
     return windowWidth > 768 ? "px-4" : "px-2";
   };
 
+  /**
+   * @function getButtonClasses
+   * @description Generates the CSS classes for a button based on whether it is the active section.
+   * @param {string} section - The section ID associated with the button.
+   * @returns {string} A string of Tailwind CSS classes.
+   */
   const getButtonClasses = (section: string): string => {
     return `block rounded-lg ${getResponsivePadding()} py-2 text-sm font-medium ${
-      activeSection === section 
-      ? "bg-gray-100 text-gray-700" 
+      activeSection === section
+      ? "bg-gray-100 text-gray-700"
       : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
     }`;
   };
 
   const buttons: ButtonItem[] = [
-    { id: "inicio", label: "Inicio", emoji: "🏠" },
-    { id: "sobre-mi", label: "Sobre mí", emoji: "👨‍💻" },
-    { id: "proyectos", label: "Proyectos", emoji: "🚀" },
-    { id: "habilidades", label: "Habilidades", emoji: "💪" },
-    { id: "contacto", label: "Contacto", emoji: "📧" },
+    { id: "inicio", label: "Home", emoji: "🏠" },
+    { id: "sobre-mi", label: "About Me", emoji: "👨‍💻" },
+    { id: "proyectos", label: "Projects", emoji: "🚀" },
+    { id: "habilidades", label: "Skills", emoji: "💪" },
+    { id: "contacto", label: "Contact", emoji: "📧" },
     { id: "cv", label: "CV", emoji: "📄" }
   ];
 
   useEffect(() => {
     const sections: string[] = ["inicio", "sobre-mi", "proyectos", "habilidades", "contacto", "cv"];
-    
-    // Animación de entrada de los botones
+
+    // Entrance animation for the buttons
     if (buttonsRef.current && buttonRefs.current.length > 0) {
-      gsap.fromTo(buttonRefs.current, 
-        { 
-          x: -100, 
+      gsap.fromTo(buttonRefs.current,
+        {
+          x: -100,
           opacity: 0,
           scale: 0.8
         },
-        { 
-          x: 0, 
+        {
+          x: 0,
           opacity: 1,
           scale: 1,
           duration: 0.8,
@@ -75,7 +110,8 @@ const Buttons: React.FC = () => {
         }
       );
     }
-    
+
+    // Create ScrollTriggers to update the active section based on scroll position
     sections.forEach(section => {
       ScrollTrigger.create({
         trigger: `#${section}`,
@@ -92,10 +128,18 @@ const Buttons: React.FC = () => {
       });
     });
 
+    /**
+     * @function handleScroll
+     * @description Handles the scroll event to determine if the page has been scrolled.
+     */
     const handleScroll = (): void => {
       setIsScrolled(window.scrollY > 50);
     };
 
+    /**
+     * @function handleResize
+     * @description Handles the window resize event to update the window width and refresh ScrollTrigger.
+     */
     const handleResize = (): void => {
       setWindowWidth(window.innerWidth);
       ScrollTrigger.refresh();
@@ -103,7 +147,8 @@ const Buttons: React.FC = () => {
 
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleResize);
-    
+
+    // Cleanup function to remove event listeners and kill ScrollTriggers
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
@@ -111,17 +156,33 @@ const Buttons: React.FC = () => {
     };
   }, []);
 
+  /**
+   * @function getResponsiveWidth
+   * @description Calculates the width of the sidebar based on scroll state and window width.
+   * @returns {string} The Tailwind CSS class for the width.
+   */
   const getResponsiveWidth = (): string => {
     if (isScrolled) return 'w-16';
-    if (windowWidth < 640) return 'w-16'; // móvil
-    if (windowWidth < 768) return 'w-48'; // tablet
-    return 'w-64'; // desktop
+    if (windowWidth < 640) return 'w-16';
+    if (windowWidth < 768) return 'w-48';
+    return 'w-64';
   };
 
+  /**
+   * @function showOnlyEmoji
+   * @description Determines whether to show only the emoji on the buttons.
+   * @returns {boolean} True if only emojis should be shown, otherwise false.
+   */
   const showOnlyEmoji = (): boolean => {
     return isScrolled || windowWidth < 640;
   };
 
+  /**
+   * @function handleButtonHover
+   * @description Animates a button on mouse enter and leave events.
+   * @param {HTMLButtonElement} button - The button element being hovered.
+   * @param {boolean} isEntering - True if the mouse is entering the button, false if leaving.
+   */
   const handleButtonHover = (button: HTMLButtonElement, isEntering: boolean) => {
     if (isEntering) {
       gsap.to(button, {

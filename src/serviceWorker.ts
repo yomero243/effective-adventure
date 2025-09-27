@@ -10,6 +10,12 @@ const STATIC_ASSETS = [
   '/Template.glb'
 ];
 
+/**
+ * @event install
+ * @description This event is fired when the service worker is installed.
+ * It opens a cache and adds all the static assets to it for offline availability.
+ * @param {ExtendableEvent} event - The install event.
+ */
 self.addEventListener('install', (event: ExtendableEvent) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -18,6 +24,12 @@ self.addEventListener('install', (event: ExtendableEvent) => {
   );
 });
 
+/**
+ * @event activate
+ * @description This event is fired when the service worker is activated.
+ * It cleans up old caches by deleting any caches that do not match the current cache name.
+ * @param {ExtendableEvent} event - The activate event.
+ */
 self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -30,6 +42,14 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
   );
 });
 
+/**
+ * @event fetch
+ * @description This event is fired for every network request.
+ * It implements a cache-first strategy. It first checks if the request is in the cache.
+ * If it is, it returns the cached response. Otherwise, it fetches the request from the network,
+ * caches the response, and then returns it.
+ * @param {FetchEvent} event - The fetch event.
+ */
 self.addEventListener('fetch', (event: FetchEvent) => {
   event.respondWith(
     caches.match(event.request).then((response) => {

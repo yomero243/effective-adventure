@@ -1,17 +1,22 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import "./MouseEffect.css";
 
-// Elementos que deberían activar efecto hover
+/**
+ * @constant INTERACTIVE_ELEMENTS
+ * @description A set of HTML tag names that should trigger a hover effect on the custom cursor.
+ */
 const INTERACTIVE_ELEMENTS = new Set(['BUTTON', 'A', 'INPUT', 'SELECT', 'TEXTAREA']);
 
-// Variables para el manejo del movimiento del ratón
+// Variables for handling mouse movement
 let lastMouseX = 0;
 let lastMouseY = 0;
 let lastUpdateTime = performance.now();
 
 /**
- * Componente que crea un efecto de cursor personalizado
- * @returns {JSX.Element} Componente de efecto de cursor
+ * @component MouseEffect
+ * @description Creates a custom cursor effect that follows the mouse, animates smoothly,
+ * and changes appearance when hovering over interactive elements. It is disabled on touch devices.
+ * @returns {JSX.Element | null} The custom cursor element or null if on a touch device.
  */
 const MouseEffect: React.FC = () => {
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -21,24 +26,30 @@ const MouseEffect: React.FC = () => {
   const isInitialized = useRef(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
-  // Actualiza la posición del cursor con animación
+  /**
+   * @function updateCursorPosition
+   * @description Animates the cursor's position using `requestAnimationFrame` for smooth updates.
+   */
   const updateCursorPosition = useCallback(() => {
     if (!cursorRef.current) {
       rafId.current = requestAnimationFrame(updateCursorPosition);
       return;
     }
-    
+
     cursorRef.current.style.transform = `translate3d(${mousePosition.current.x}px, ${mousePosition.current.y}px, 0)`;
-    
+
     if (!isInitialized.current) {
       cursorRef.current.style.opacity = '1';
       isInitialized.current = true;
     }
-    
+
     rafId.current = requestAnimationFrame(updateCursorPosition);
   }, []);
 
-  // Establece la posición inicial del cursor
+  /**
+   * @function initializePosition
+   * @description Sets the initial position of the cursor to the center of the screen.
+   */
   const initializePosition = useCallback(() => {
     mousePosition.current = {
       x: window.innerWidth / 2,
@@ -50,17 +61,21 @@ const MouseEffect: React.FC = () => {
     }
   }, []);
 
-  // Maneja el movimiento del ratón con interpolación suave
+  /**
+   * @function handleMouseMove
+   * @description Handles the mouse move event with smooth interpolation to update the cursor's target position.
+   * @param {MouseEvent} event - The mouse move event.
+   */
   const handleMouseMove = useCallback((event: MouseEvent) => {
     const currentTime = performance.now();
     const timeDelta = currentTime - lastUpdateTime;
 
-    // Actualiza la posición solo si ha pasado suficiente tiempo (60 FPS aproximadamente)
+    // Update position only if enough time has passed (approx. 60 FPS)
     if (timeDelta > 16) {
       const dx = event.clientX - lastMouseX;
       const dy = event.clientY - lastMouseY;
-      
-      // Interpolación suave del movimiento
+
+      // Smooth interpolation of movement
       mousePosition.current = {
         x: lastMouseX + dx * 0.5,
         y: lastMouseY + dy * 0.5
@@ -72,10 +87,14 @@ const MouseEffect: React.FC = () => {
     }
   }, []);
 
-  // Detecta si el elemento hover es interactivo
+  /**
+   * @function handleInteraction
+   * @description Detects if the mouse is hovering over an interactive element and toggles the cursor's hover state.
+   * @param {MouseEvent} event - The mouse over event.
+   */
   const handleInteraction = useCallback((event: MouseEvent) => {
     const target = event.target as HTMLElement;
-    const isInteractive = INTERACTIVE_ELEMENTS.has(target.tagName) || 
+    const isInteractive = INTERACTIVE_ELEMENTS.has(target.tagName) ||
                          target.classList.contains('interactive') ||
                          !!target.closest('.interactive');
 
@@ -87,38 +106,41 @@ const MouseEffect: React.FC = () => {
     }
   }, []);
 
-  // Detecta si es un dispositivo táctil
+  /**
+   * @function detectTouchDevice
+   * @description Detects if the current device is touch-capable.
+   */
   const detectTouchDevice = useCallback(() => {
-    const isTouchCapable = 'ontouchstart' in window || 
-                          navigator.maxTouchPoints > 0 || 
+    const isTouchCapable = 'ontouchstart' in window ||
+                          navigator.maxTouchPoints > 0 ||
                           (navigator as any).msMaxTouchPoints > 0;
-                          
+
     setIsTouchDevice(isTouchCapable || !window.matchMedia('(hover: hover)').matches);
   }, []);
 
-  // Efecto principal para inicializar y limpiar
+  // Main effect for initialization and cleanup
   useEffect(() => {
     detectTouchDevice();
-    
-    // No mostrar cursor personalizado en dispositivos táctiles
+
+    // Don't show custom cursor on touch devices
     if (isTouchDevice) return;
-    
-    // Reiniciar valores de seguimiento
+
+    // Reset tracking values
     lastMouseX = window.innerWidth / 2;
     lastMouseY = window.innerHeight / 2;
     lastUpdateTime = performance.now();
-    
+
     initializePosition();
     rafId.current = requestAnimationFrame(updateCursorPosition);
 
     // Event listeners
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
     document.addEventListener('mouseover', handleInteraction, { passive: true });
-    
-    // Ocultar cursor predeterminado
+
+    // Hide default cursor
     document.documentElement.style.cursor = 'none';
 
-    // Limpieza
+    // Cleanup
     return () => {
       if (rafId.current) {
         cancelAnimationFrame(rafId.current);
@@ -129,7 +151,7 @@ const MouseEffect: React.FC = () => {
     };
   }, [updateCursorPosition, handleMouseMove, handleInteraction, initializePosition, detectTouchDevice, isTouchDevice]);
 
-  // No renderizar nada en dispositivos táctiles
+  // Don't render anything on touch devices
   if (isTouchDevice) {
     return null;
   }
